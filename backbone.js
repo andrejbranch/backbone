@@ -4,44 +4,54 @@
 //     For all details and documentation:
 //     http://documentcloud.github.com/backbone
 
-(function(){
 
+(function (factory){
   // Initial Setup
   // -------------
 
-  // Save a reference to the global object.
   var root = this;
 
   // Save the previous value of the `Backbone` variable.
   var previousBackbone = root.Backbone;
 
+  if (typeof exports !== 'undefined') {
+    // CommonJS environment.
+    // jQuery most likely cannot be loaded
+    // in a CommonJS environment, unless the developer
+    // also uses a browser shim like jsdom. Allow
+    // for that possibility, but do not blow
+    // up if it does not work. Use of a
+    // try/catch has precedent in Node modules
+    // for this kind of situation.
+    var $;
+    try {
+      $ = require('jquery');
+    } catch (e) {
+      // ignore, it is ok in node if it fails.
+    }
+    factory(root, previousBackbone, exports, require('underscore'), $);
+  } else if (typeof define === 'function' && define.amd) {
+    // AMD
+    define('backbone', ['underscore', 'jquery', 'exports'], function (_, $, exports) {
+      factory(root, previousBackbone, exports, _, $);
+    });
+  } else {
+    // Browser globals
+    factory(root, previousBackbone, (root.Backbone = {}), root._, (root.jQuery || root.Zepto || root.ender));
+  }
+}(function (root, previousBackbone, Backbone, _, $) {
+
   // Create a local reference to slice.
   var slice = Array.prototype.slice;
 
-  // The top-level namespace. All public Backbone classes and modules will
-  // be attached to this. Exported for both CommonJS and the browser.
-  var Backbone;
-  if (typeof exports !== 'undefined') {
-    Backbone = exports;
-  } else {
-    Backbone = root.Backbone = {};
-  }
-
   // Current version of the library. Keep in sync with `package.json`.
   Backbone.VERSION = '0.5.3';
-
-  // Require Underscore, if we're on the server, and it's not already present.
-  var _ = root._;
-  if (!_ && (typeof require !== 'undefined')) _ = require('underscore')._;
-
-  // For Backbone's purposes, jQuery, Zepto, or Ender owns the `$` variable.
-  var $ = root.jQuery || root.Zepto || root.ender;
 
   // Runs Backbone.js in *noConflict* mode, returning the `Backbone` variable
   // to its previous owner. Returns a reference to this Backbone object.
   Backbone.noConflict = function() {
     root.Backbone = previousBackbone;
-    return this;
+    return Backbone;
   };
 
   // Turn on `emulateHTTP` to support legacy HTTP servers. Setting this option will
@@ -1160,4 +1170,4 @@
     };
   };
 
-}).call(this);
+}));
