@@ -39,7 +39,7 @@
     // Browser globals
     factory(root, previousBackbone, (root.Backbone = {}), root._, (root.jQuery || root.Zepto || root.ender));
   }
-}(function (root, previousBackbone, Backbone, _, $) {
+}.call(this, function (root, previousBackbone, Backbone, _, $) {
 
   // Create a local reference to slice.
   var slice = Array.prototype.slice;
