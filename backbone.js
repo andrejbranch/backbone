@@ -5,41 +5,27 @@
 //     http://documentcloud.github.com/backbone
 
 
-(function (factory){
-  // Initial Setup
-  // -------------
-
-  var root = this;
-
-  // Save the previous value of the `Backbone` variable.
-  var previousBackbone = root.Backbone;
-
+(function(root, factory) {
+  // Set up Backbone in the
   if (typeof exports !== 'undefined') {
-    // CommonJS environment.
-    // jQuery most likely cannot be loaded
-    // in a CommonJS environment, unless the developer
-    // also uses a browser shim like jsdom. Allow
-    // for that possibility, but do not blow
-    // up if it does not work. Use of a
-    // try/catch has precedent in Node modules
-    // for this kind of situation.
-    var $;
-    try {
-      $ = require('jquery');
-    } catch (e) {
-      // ignore, it is ok in node if it fails.
-    }
-    factory(root, previousBackbone, exports, require('underscore'), $);
+    // Node/CommonJS
+    factory(root, exports, require('underscore'), undefined);
   } else if (typeof define === 'function' && define.amd) {
     // AMD
-    define('backbone', ['underscore', 'jquery', 'exports'], function (_, $, exports) {
-      factory(root, previousBackbone, exports, _, $);
+    define('backbone', ['underscore', 'jquery', 'exports'], function(_, $, exports) {
+      factory(root, exports, _, $);
     });
   } else {
     // Browser globals
-    factory(root, previousBackbone, (root.Backbone = {}), root._, (root.jQuery || root.Zepto || root.ender));
+    root.Backbone = factory(root, {}, root._, (root.jQuery || root.Zepto || root.ender));
   }
-}.call(this, function (root, previousBackbone, Backbone, _, $) {
+}(this, function(root, Backbone, _, $) {
+
+  // Initial Setup
+  // -------------
+
+  // Save the previous value of the `Backbone` variable.
+  var previousBackbone = root.Backbone;
 
   // Create a local reference to slice.
   var slice = Array.prototype.slice;
@@ -1170,4 +1156,5 @@
     };
   };
 
+  return Backbone;
 }));
